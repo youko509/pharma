@@ -18,9 +18,9 @@ class _ManagerPageState extends State<ManagerPage> {
   final TextEditingController _stockPriceController = TextEditingController();
   final TextEditingController _stockSupplierController = TextEditingController();
   String? _selectedType;
-  Box l = Hive.box<Article>('articles6');
-  Box<Stock> stockBox = Hive.box<Stock>('stocks6');
-  List<Article> _articles6 = [];
+  Box l = Hive.box<Article>('articles7');
+  Box<Stock> stockBox = Hive.box<Stock>('stocks7');
+  List<Article> _articles7 = [];
   List<Stock> _stocks = [];
   Article? _selectedArticle;
 
@@ -31,12 +31,12 @@ class _ManagerPageState extends State<ManagerPage> {
   }
 
   Future<void> _loadData() async {
-    final articleBox =  Hive.box<Article>('articles6');
-    final  stockBox =  Hive.box<Stock>('stocks6');
+    final articleBox =  Hive.box<Article>('articles7');
+    final  stockBox =  Hive.box<Stock>('stocks7');
 
     setState(() {
-      _articles6 = articleBox.values.toList();
-      _articles6.forEach((element) {print(element.stock.length);});
+      _articles7 = articleBox.values.toList();
+      _articles7.forEach((element) {print(element.stock.length);});
       _stocks = stockBox.values.toList();
     });
   }
@@ -265,14 +265,14 @@ void _openAddStockModal() {
         name: name,
         type: type,
         price: price,
-        stock: HiveList(Hive.box<Stock>('stocks6')),
+        stock: HiveList(Hive.box<Stock>('stocks7')),
       );
       print(article);
-      final  articleBox = Hive.box<Article>('articles6');
+      final  articleBox = Hive.box<Article>('articles7');
       articleBox.add(article);
 
       setState(() {
-        _articles6.add(article);
+        _articles7.add(article);
         
       });
 
@@ -317,10 +317,10 @@ void _openAddStockModal() {
                   SizedBox(height: 10.0),
                   ListView.builder(
                     shrinkWrap: true,
-                    itemCount: _articles6.length,
+                    itemCount: _articles7.length,
                     itemBuilder: (BuildContext context, int index) {
-                      final Article article = _articles6[index];
-                      final List stock = _articles6[index].stock.toList();
+                      final Article article = _articles7[index];
+                      final List stock = _articles7[index].stock.toList();
                       return Column(
                         
                         children: [

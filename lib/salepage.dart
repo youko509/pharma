@@ -24,7 +24,7 @@ class _SalePageState extends State<SalePage> {
   }
 
   Future<void> _loadArticles() async {
-    final articleBox = Hive.box<Article>('articles6');
+    final articleBox = Hive.box<Article>('articles7');
     setState(() {
       _articles = articleBox.values.toList();
       print(_articles);
@@ -52,20 +52,24 @@ class _SalePageState extends State<SalePage> {
   }
 
   void _saveSale(Article article, int quantity) {
-    final saleBox = Hive.box<Sale>('sales4');
-    final Sale sale =
-        Sale(stock: HiveList(Hive.box<Stock>('stocks6')), price: article.price, quantity: quantity);
+    
+    final saleBox = Hive.box<Sale>('sales5');
+    final Sale sale = Sale(stock: HiveList(Hive.box<Stock>('stocks7')), price: article.price, quantity: quantity);
 
     
-    List<Stock> selectedStockList=[];
+    List selectedStockList=[];
     List<Stock> stocks =[];
     selectedStockList=article.stock.toList();
-    Stock stock = selectedStockList.firstWhere((element) => element.quantity > 0);
+  
+    Stock stock = selectedStockList[0];
+    saleBox.add(sale); 
     stocks.add(stock);
     sale.stock.addAll(stocks);
+    print(sale);
     sale.save();
-    saleBox.add(sale); 
-    print(sale.stock);
+    saleBox.putAt(sale.key,sale);
+    
+   
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Sale saved successfully.'),

@@ -27,7 +27,7 @@ class Article extends HiveObject {
 
 
   @HiveField(3)
-  HiveList <Stock>stock;
+  HiveList stock;
 
   @HiveField(4)
   DateTime createdAt= DateTime.now();
@@ -72,7 +72,7 @@ class ArticleAdapter extends TypeAdapter<Article> {
       name: fields[0] as String,
       type: fields[1] as String,
       price: fields[2] as double,
-      stock: fields[3] as HiveList<Stock>,
+      stock: fields[3] as HiveList,
     );
   }
 

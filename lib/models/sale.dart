@@ -5,7 +5,7 @@ import 'package:pharma1/models/stock.dart';
 @HiveType(typeId: 5)
 class Sale extends HiveObject {
   @HiveField(0)
-  HiveList<Stock> stock;
+  HiveList stock;
   
   @HiveField(1)
   double price;
@@ -35,7 +35,7 @@ class SaleAdapter extends TypeAdapter<Sale> {
       fields[fieldIndex] = fieldValue;
     }
     return Sale(
-      stock: fields[0] as HiveList<Stock>,
+      stock: fields[0] as HiveList,
       price: fields[1] as double,
       quantity: fields[2] as int,
     );

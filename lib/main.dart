@@ -17,9 +17,9 @@ void main() async {
   Hive.registerAdapter<Stock>(StockAdapter());
   Hive.registerAdapter<Article>(ArticleAdapter());
   await Hive.openBox<User>('users4');
-  await Hive.openBox<Sale>('sales4');
-  await Hive.openBox<Stock>('stocks6');
-  await Hive.openBox<Article>('articles6');
+  await Hive.openBox<Sale>('sales5');
+  await Hive.openBox<Stock>('stocks7');
+  await Hive.openBox<Article>('articles7');
   runApp(
     MaterialApp(
       title: 'Flutter Demo',
