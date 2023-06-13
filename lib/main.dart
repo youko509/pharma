@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
-import 'package:pharma1/login.dart';
-import 'package:pharma1/manage.dart';
+
 import 'package:pharma1/models/article.dart';
 import 'package:pharma1/models/sale.dart';
 import 'package:pharma1/models/stock.dart';
@@ -17,7 +16,7 @@ void main() async {
   Hive.registerAdapter<Stock>(StockAdapter());
   Hive.registerAdapter<Article>(ArticleAdapter());
   await Hive.openBox<User>('users4');
-  await Hive.openBox<Sale>('sales5');
+  await Hive.openBox<Sale>('sales6');
   await Hive.openBox<Stock>('stocks7');
   await Hive.openBox<Article>('articles7');
   runApp(

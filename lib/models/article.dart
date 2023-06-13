@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:pharma1/models/stock.dart';
+
 
 @HiveType(typeId: 3)
 enum ArticleType {

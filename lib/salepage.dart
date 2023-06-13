@@ -14,13 +14,20 @@ class SalePage extends StatefulWidget {
 class _SalePageState extends State<SalePage> {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
-
+  final saleBox = Hive.box<Sale>('sales6');
   List<Article> _articles = [];
 
   @override
   void initState() {
     super.initState();
     _loadArticles();
+    int val =0;
+    
+   
+    List <Sale> sales2=saleBox.values.toList();
+    for (var i = 0; i < sales2.length; i++) {
+      val =val+ sales2[i].quantity;
+    }
   }
 
   Future<void> _loadArticles() async {
@@ -53,7 +60,7 @@ class _SalePageState extends State<SalePage> {
 
   void _saveSale(Article article, int quantity) {
     
-    final saleBox = Hive.box<Sale>('sales5');
+    
     final Sale sale = Sale(stock: HiveList(Hive.box<Stock>('stocks7')), price: article.price, quantity: quantity);
 
     
@@ -62,10 +69,13 @@ class _SalePageState extends State<SalePage> {
     selectedStockList=article.stock.toList();
   
     Stock stock = selectedStockList[0];
+   
     saleBox.add(sale); 
+    stock.quantity=stock.quantity-sale.quantity;
+    
     stocks.add(stock);
     sale.stock.addAll(stocks);
-    print(sale);
+    print(sale.stock);
     sale.save();
     saleBox.putAt(sale.key,sale);
     
