@@ -14,29 +14,76 @@ class SalePage extends StatefulWidget {
 class _SalePageState extends State<SalePage> {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
-  final saleBox = Hive.box<Sale>('sales6');
+  final saleBox = Hive.box<Sale>('sales');
+   final articleBox = Hive.box<Article>('articles');
   List<Article> _articles = [];
-
+  List<Sale> _sales = [];
+  double total = 0;
   @override
   void initState() {
     super.initState();
-    _loadArticles();
-    int val =0;
-    
-   
-    List <Sale> sales2=saleBox.values.toList();
-    for (var i = 0; i < sales2.length; i++) {
-      val =val+ sales2[i].quantity;
-    }
+    _loadSales();
   }
 
   Future<void> _loadArticles() async {
-    final articleBox = Hive.box<Article>('articles7');
+   
     setState(() {
       _articles = articleBox.values.toList();
-      print(_articles);
+     
     });
   }
+  Future<List<Sale>> fetchSales() async {
+    final box = Hive.box<Sale>('sales');
+    List<Sale> sales=[];
+    for(int i=0; i<box.values.toList().length; i++){
+       Sale sale = saleBox.values.toList()[i];
+     if (!sale.isSale){
+          sales.add(sale);
+        }
+    }
+      return sales;
+  }
+  Future<List<Sale>> confirmSale() async {
+    final box = Hive.box<Sale>('sales');
+    List<Sale> sales=[];
+    for(int i=0; i<box.values.toList().length; i++){
+       Sale sale = saleBox.values.toList()[i];
+     if (!sale.isSale){
+        sale.isSale = true;
+        sale.save();
+          sales.add(sale);
+           _loadSales();
+          ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sale Confirm successfully'),
+          ),
+        );
+        }
+    }
+      return sales;
+  }
+  Future<void> removeItemFromCart(int index) async {
+   saleBox.delete(index);
+   _loadSales();
+  }
+  
+   Future<void> _loadSales() async {
+
+    setState(() {
+      total=0;
+      _sales=[];
+      for(int i=0; i<saleBox.values.toList().length; i++){
+        Sale sale = saleBox.values.toList()[i];
+        if (!sale.isSale){
+          _sales.add(sale);
+        }
+        
+      }
+      _sales.forEach((element) { total+= element.quantity * element.price;});
+      
+    });
+  }
+  
 
   @override
   void dispose() {
@@ -46,10 +93,12 @@ class _SalePageState extends State<SalePage> {
   }
 
   void _searchArticle(String query) {
+    
     setState(() {
       if (query.isEmpty) {
-        _loadArticles();
+       _articles =<Article>[];
       } else {
+        _loadArticles();
         _articles = _articles
             .where((article) =>
                 article.name.toLowerCase().contains(query.toLowerCase()))
@@ -59,32 +108,50 @@ class _SalePageState extends State<SalePage> {
   }
 
   void _saveSale(Article article, int quantity) {
-    
-    
-    final Sale sale = Sale(stock: HiveList(Hive.box<Stock>('stocks7')), price: article.price, quantity: quantity);
-
-    
     List selectedStockList=[];
-    List<Stock> stocks =[];
-    selectedStockList=article.stock.toList();
-  
-    Stock stock = selectedStockList[0];
    
-    saleBox.add(sale); 
-    stock.quantity=stock.quantity-sale.quantity;
+    List<Stock> stocks =[];
     
+    selectedStockList=article.stock.toList();
+    List nonEmptyStocks = selectedStockList.where((stock) {
+          return !stock.isEmpty();
+        }).toList();
+    
+    
+    if ( nonEmptyStocks.isEmpty){
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('The quantity is more than the stock or'),
+      ),
+      );
+      
+    } else if (quantity > 0){
+      Stock stock = nonEmptyStocks[0];
+    final Sale sale = Sale(stock: HiveList(Hive.box<Stock>('stocks')), price: article.price, quantity: quantity, createdAt: DateTime.now(), articleKey: article.key, isSale: false);
+    print("yes");
+    saleBox.add(sale);
+    stock.quantity-=sale.quantity;
     stocks.add(stock);
     sale.stock.addAll(stocks);
-    print(sale.stock);
-    sale.save();
-    saleBox.putAt(sale.key,sale);
     
+    sale.save();
+    print("get there ${sale.key}");
+    saleBox.put(sale.key,sale);
+     _loadSales();
    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Sale saved successfully.'),
       ),
     );
+    }else{
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Enter a valid quantity.'),
+      ),
+    );
+    }
   }
 
   void _navigateToPage(String pageName) {
@@ -160,9 +227,13 @@ class _SalePageState extends State<SalePage> {
               itemCount: _articles.length,
               itemBuilder: (context, index) {
                 final article = _articles[index];
+                Stock stock;
+                num q=0;
+                 article.stock.forEach((element) {stock = element as Stock; q+=stock.quantity;});
                 return ListTile(
                   title: Text(article.name),
-                  subtitle: Text('Price: ${article.price}'),
+                  subtitle: Text('Price: \$${article.price}'),
+                  trailing: Text('Stock: ${q}'),
                   onTap: () {
                     showDialog(
                       context: context,
@@ -187,8 +258,9 @@ class _SalePageState extends State<SalePage> {
                               onPressed: () {
                                 final int quantity =
                                     int.tryParse(_quantityController.text) ?? 0;
+                                    Navigator.of(context).pop();
                                 _saveSale(article, quantity);
-                                Navigator.of(context).pop();
+                               _quantityController.text=' ';
                               },
                               child: Text('Save'),
                             ),
@@ -201,6 +273,66 @@ class _SalePageState extends State<SalePage> {
               },
             ),
           ),
+         SizedBox(height: 2.0),
+         if (_sales.isNotEmpty)
+          Text(
+            'Cart',
+            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+          ),
+         FutureBuilder<List<Sale>>(
+            future: fetchSales(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final _sales = snapshot.data!;
+                if (_sales.isEmpty) {
+                  // Display a message when no sales exist
+                  return Text('');
+                }
+                return Expanded(
+                      child: ListView.builder(
+                        itemCount: _sales.length,
+                        itemBuilder: (context, index) {
+                          final sale = _sales[index];
+                          final article = articleBox.getAt(sale.articleKey);
+                          return ListTile(
+                            title: Text('${article!.name} '),
+                            subtitle: Text('Price:\$${sale.price}, Quantity: ${sale.quantity}, Total: \$${sale.price * sale.quantity}'),
+                            trailing:  ElevatedButton(
+                              onPressed: () {
+                                setState(() {();});
+                              },
+                              child:  
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: (){
+                                    setState(() {
+                                      removeItemFromCart(sale.key);
+                                      });
+                                    }),
+                            ),
+                          );
+                        }
+                      )
+         );} else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                return CircularProgressIndicator();
+              }
+            } 
+          ),
+          if (_sales.isNotEmpty)
+          Text('Total :${total}'),
+          if (_sales.isNotEmpty)
+          ElevatedButton(
+            onPressed: () {
+              confirmSale();
+            },
+            child: Text('Confirm sale'),
+          ),
+          SizedBox(height: 50.0),
         ],
       ),
     );

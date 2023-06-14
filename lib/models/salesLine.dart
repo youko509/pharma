@@ -1,15 +1,61 @@
 import 'package:hive/hive.dart';
 
-@HiveType(typeId: 1)
-class SalesLine extends HiveObject {
+
+
+@HiveType(typeId: 8)
+class SaleLine extends HiveObject {
   @HiveField(0)
-  String username='';
+  HiveList stock;
+  
   @HiveField(1)
-  String email='';
+  double price;
+  
   @HiveField(2)
-  String password='';
-  @HiveField(3,defaultValue: false)
-  bool isAdmin=false;
-  @HiveField(4,defaultValue: true)
-  bool isActive=true;
+  int quantity;
+
+  @HiveField(3) 
+  DateTime createdAt;
+
+  SaleLine({required this.stock, required this.price, required this.quantity, required this.createdAt});
+}
+
+class SaleAdapter extends TypeAdapter<SaleLine> {
+  @override
+  final int typeId = 8;
+
+  @override
+  SaleLine read(BinaryReader reader) {
+     var numberOfFields = reader.readByte();
+    var fields = <int, dynamic>{};
+
+    for (var i = 0; i < numberOfFields; i++) {
+      var fieldIndex = reader.readByte();
+      var fieldValue = reader.read();
+
+      fields[fieldIndex] = fieldValue;
+    }
+    return SaleLine(
+      stock: fields[0] as HiveList,
+      price: fields[1] as double,
+      quantity: fields[2] as int,
+      createdAt: fields[3] as DateTime,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, SaleLine obj) {
+    writer.writeByte(4); // Number of fields in the Sale class
+
+    writer.writeByte(0); // Field index of stock
+    writer.write(obj.stock);
+
+    writer.writeByte(1); // Field index of price
+    writer.write(obj.price);
+
+    writer.writeByte(2); // Field index of quantity
+    writer.write(obj.quantity);
+
+    writer.writeByte(3); // Field index of quantity
+    writer.write(obj.createdAt);
+  }
 }

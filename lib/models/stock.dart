@@ -29,10 +29,17 @@ class Stock extends HiveObject {
   DateTime buyDate = DateTime.now();  
 
   @HiveField(8) 
-  DateTime createdAt =DateTime.now();
+  DateTime createdAt;
+  
 
-  Stock({required this.quantity,required this.balance,required this.price,required this.supplier,required this.quantityPerBox,required this.description,required this.buyDate, this.notes=''});
+  Stock({required this.quantity,required this.balance,required this.price,required this.supplier,required this.quantityPerBox,required this.description,required this.buyDate, this.notes='', required this.createdAt});
 
+  bool isEmpty(){
+    if (quantity==0){
+      return true;
+    }
+    return false;
+  }
 }
 
 class StockAdapter extends TypeAdapter<Stock> {
@@ -61,6 +68,7 @@ class StockAdapter extends TypeAdapter<Stock> {
       description: fields[5] as String,
       notes: fields[6] as String,
       buyDate: fields[7] as DateTime,
+      createdAt: fields[8] as DateTime,
     );
   }
   @override

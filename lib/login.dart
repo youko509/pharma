@@ -34,7 +34,7 @@ class _LoginPageState   extends State<LoginPage> {
       return;
     }
     // Save user to Hive
-    final userBox = Hive.box<User>('users4');
+    final userBox = Hive.box<User>('users');
     final user = User(
       username: username,
       email: email,

@@ -15,10 +15,11 @@ void main() async {
   Hive.registerAdapter<Sale>(SaleAdapter());
   Hive.registerAdapter<Stock>(StockAdapter());
   Hive.registerAdapter<Article>(ArticleAdapter());
-  await Hive.openBox<User>('users4');
-  await Hive.openBox<Sale>('sales6');
-  await Hive.openBox<Stock>('stocks7');
-  await Hive.openBox<Article>('articles7');
+  await Hive.openBox<User>('users');
+  await Hive.openBox<Sale>('sales');
+  await Hive.openBox<Stock>('stocks');
+  await Hive.openBox<Article>('articles');
+  
   runApp(
     MaterialApp(
       title: 'Flutter Demo',

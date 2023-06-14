@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:pharma1/models/sale.dart';
 
-import 'models/stock.dart';
+// import 'models/stock.dart';
 
 
 class ReportPage extends StatefulWidget {
@@ -31,14 +31,14 @@ class _ReportPageState extends State<ReportPage> {
   DateTime? toDate;
 
   Future<List<Sale>> fetchSales() async {
-    final box = Hive.box<Sale>('sales6');
+    final box = Hive.box<Sale>('sales');
     List<Sale> sales = box.values.toList();
     
     if (fromDate != null && toDate != null) {
      
       sales = sales.where((sale) {
         return sale.createdAt.isAfter(fromDate!) &&
-            sale.createdAt.isBefore(toDate!);
+            sale.createdAt.isBefore(toDate!) && sale.isSale;
       }).toList();
      
       return sales;
@@ -106,13 +106,14 @@ class _ReportPageState extends State<ReportPage> {
                     itemCount: sales.length,
                     itemBuilder: (context, index) {
                       final sale = sales[index];
-                      List selectedStockList=[];
-                      selectedStockList=(sale.stock.toList());
-                      Stock stock = selectedStockList[0];
+                     
                       return ListTile(
                         title: Text('Sale ${index + 1}'),
-                        subtitle: Text('Quantity: ${stock.quantity}'),
-                        trailing: Text('Price: \$${sale.price.toStringAsFixed(2)}'),
+                        subtitle: Text('Quantity: ${sale.quantity}'),
+                        trailing: Column (children: [
+                          Text('Price: \$${sale.price.toStringAsFixed(2)}'),
+                          Text('Date: ${sale.createdAt.day}/${sale.createdAt.month}/${sale.createdAt.year}')
+                        ],)
                         // Display other properties of your Sale object
                       );
                     },
