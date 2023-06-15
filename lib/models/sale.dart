@@ -5,7 +5,7 @@ import 'package:hive/hive.dart';
 @HiveType(typeId: 5)
 class Sale extends HiveObject {
   @HiveField(0)
-  HiveList stock;
+  int stockKey;
   
   @HiveField(1)
   double price;
@@ -22,7 +22,7 @@ class Sale extends HiveObject {
   @HiveField(5)
   bool isSale;
 
-  Sale({required this.stock, required this.price, required this.quantity, required this.createdAt, required this.articleKey,required this.isSale});
+  Sale({required this.stockKey, required this.price, required this.quantity, required this.createdAt, required this.articleKey,required this.isSale});
 }
 
 class SaleAdapter extends TypeAdapter<Sale> {
@@ -41,7 +41,7 @@ class SaleAdapter extends TypeAdapter<Sale> {
       fields[fieldIndex] = fieldValue;
     }
     return Sale(
-      stock: fields[0] as HiveList,
+      stockKey: fields[0] as int,
       price: fields[1] as double,
       quantity: fields[2] as int,
       createdAt: fields[3] as DateTime,
@@ -55,7 +55,7 @@ class SaleAdapter extends TypeAdapter<Sale> {
     writer.writeByte(6); // Number of fields in the Sale class
 
     writer.writeByte(0); // Field index of stock
-    writer.write(obj.stock);
+    writer.write(obj.stockKey);
 
     writer.writeByte(1); // Field index of price
     writer.write(obj.price);

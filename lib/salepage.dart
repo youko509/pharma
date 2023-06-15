@@ -15,7 +15,8 @@ class _SalePageState extends State<SalePage> {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   final saleBox = Hive.box<Sale>('sales');
-   final articleBox = Hive.box<Article>('articles');
+  final articleBox = Hive.box<Article>('articles');
+  final stockBox = Hive.box<Stock>('stocks');
   List<Article> _articles = [];
   List<Sale> _sales = [];
   double total = 0;
@@ -49,20 +50,26 @@ class _SalePageState extends State<SalePage> {
     for(int i=0; i<box.values.toList().length; i++){
        Sale sale = saleBox.values.toList()[i];
      if (!sale.isSale){
+        Stock? stock = stockBox.get(sale.stockKey);
         sale.isSale = true;
         sale.save();
-          sales.add(sale);
-           _loadSales();
-          ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Sale Confirm successfully'),
-          ),
+        stock!.quantity-=sale.quantity;
+        stock.save();
+        stockBox.put(stock.key, stock);
+        sales.add(sale);
+          _loadSales();
+        ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Sale Confirm successfully'),
+        ),
         );
+        
+        
         }
     }
       return sales;
   }
-  Future<void> removeItemFromCart(int index) async {
+  Future<void> removeItemFromCart(int index ,Sale sale) async {
    saleBox.delete(index);
    _loadSales();
   }
@@ -110,7 +117,7 @@ class _SalePageState extends State<SalePage> {
   void _saveSale(Article article, int quantity) {
     List selectedStockList=[];
    
-    List<Stock> stocks =[];
+   
     
     selectedStockList=article.stock.toList();
     List nonEmptyStocks = selectedStockList.where((stock) {
@@ -128,15 +135,13 @@ class _SalePageState extends State<SalePage> {
       
     } else if (quantity > 0){
       Stock stock = nonEmptyStocks[0];
-    final Sale sale = Sale(stock: HiveList(Hive.box<Stock>('stocks')), price: article.price, quantity: quantity, createdAt: DateTime.now(), articleKey: article.key, isSale: false);
-    print("yes");
+    final Sale sale = Sale(stockKey: stock.key, price: article.price, quantity: quantity, createdAt: DateTime.now(), articleKey: article.key, isSale: false);
+    
     saleBox.add(sale);
-    stock.quantity-=sale.quantity;
-    stocks.add(stock);
-    sale.stock.addAll(stocks);
+    
     
     sale.save();
-    print("get there ${sale.key}");
+   
     saleBox.put(sale.key,sale);
      _loadSales();
    
@@ -309,7 +314,7 @@ class _SalePageState extends State<SalePage> {
                                   ),
                                   onPressed: (){
                                     setState(() {
-                                      removeItemFromCart(sale.key);
+                                      removeItemFromCart(sale.key, sale);
                                       });
                                     }),
                             ),
