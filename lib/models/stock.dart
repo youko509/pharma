@@ -30,9 +30,12 @@ class Stock extends HiveObject {
 
   @HiveField(8) 
   DateTime createdAt;
+
+  @HiveField(9) 
+  int articleKey;
   
 
-  Stock({required this.quantity,required this.balance,required this.price,required this.supplier,required this.quantityPerBox,required this.description,required this.buyDate, this.notes='', required this.createdAt});
+  Stock({required this.quantity,required this.balance,required this.price,required this.supplier,required this.quantityPerBox,required this.description,required this.buyDate, this.notes='', required this.createdAt, required this.articleKey});
 
   bool isEmpty(){
     if (quantity==0){
@@ -69,11 +72,12 @@ class StockAdapter extends TypeAdapter<Stock> {
       notes: fields[6] as String,
       buyDate: fields[7] as DateTime,
       createdAt: fields[8] as DateTime,
+      articleKey: fields[9] as int,
     );
   }
   @override
   void write(BinaryWriter writer, Stock obj) {
-    writer.writeByte(9); // Number of fields in the Stock class
+    writer.writeByte(10); // Number of fields in the Stock class
 
     writer.writeByte(0); // Field index of quantity
     writer.write(obj.quantity);
@@ -101,5 +105,8 @@ class StockAdapter extends TypeAdapter<Stock> {
 
     writer.writeByte(8); // Field index of createdAt
     writer.write(obj.createdAt);
+
+    writer.writeByte(9); // Field index of createdAt
+    writer.write(obj.articleKey);
   }
 }
