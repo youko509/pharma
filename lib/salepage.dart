@@ -163,6 +163,7 @@ class _SalePageState extends State<SalePage> {
     // Perform navigation based on the selected page
     switch (pageName) {
       case 'Report':
+        Navigator.of(context).pop();
          Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) =>  const  ReportPage() ,
@@ -173,6 +174,7 @@ class _SalePageState extends State<SalePage> {
         // Navigate to the sale page
         break;
       case 'Manage':
+      Navigator.of(context).pop();
          Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) =>  ManagerPage(),
