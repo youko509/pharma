@@ -3,8 +3,11 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'models/article.dart';
 import 'models/stock.dart';
+import 'models/user.dart';
 
 class ManagerPage extends StatefulWidget {
+  ManagerPage({Key? key,required this.user}) : super(key: key);
+  final User user;
   @override
   _ManagerPageState createState() => _ManagerPageState();
 }
@@ -68,6 +71,7 @@ class _ManagerPageState extends State<ManagerPage> {
         buyDate: DateTime.now(),
         createdAt: DateTime.now(),
         articleKey: _selectedArticle!.key,
+        orgid:0
       );
 
       stockBox.add(stock);
@@ -266,6 +270,7 @@ class _ManagerPageState extends State<ManagerPage> {
         bigSalePrice: bigSale,
         stock: HiveList(Hive.box<Stock>('stocks')),
         createdAt: DateTime.now(),
+       orgid:0
       );
 
       final articleBox = Hive.box<Article>('articles');

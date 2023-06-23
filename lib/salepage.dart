@@ -3,35 +3,73 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pharma1/manage.dart';
 import 'package:pharma1/models/stock.dart';
+import 'package:pharma1/models/user.dart';
 import 'package:pharma1/reportpage.dart';
 import 'models/article.dart';
 import 'models/sale.dart';
 class SalePage extends StatefulWidget {
+   SalePage({Key? key, required this.user}) : super(key: key);
+  final User user;
+  
   @override
   _SalePageState createState() => _SalePageState();
 }
 
 class _SalePageState extends State<SalePage> {
+ 
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   final saleBox = Hive.box<Sale>('sales');
   final articleBox = Hive.box<Article>('articles');
   final stockBox = Hive.box<Stock>('stocks');
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwor1dController = TextEditingController();
+ 
+  void register() {
+    final username = _usernameController.text;
+    final email = _emailController.text;
+    final password = _passwor1dController.text;
+    if (username.isEmpty || email.isEmpty || password.isEmpty) {
+      // Show an error message or handle empty fields
+      return;
+    }
+    // Save user to Hive
+    final userBox = Hive.box<User>('users');
+    final user = User(
+      username: username,
+      email: email,
+      password: password,
+      isAdmin: false,
+      isActive: true,
+      createdAt: DateTime.now(),
+      orgId: widget.user.orgId,
+    );
+    userBox.add(user);
+    print(user.orgId);
+   Navigator.of(context).pop();
+  }
   List<Article> _articles = [];
   List<Sale> _sales = [];
   double total = 0;
   @override
   void initState() {
+    
     super.initState();
     _loadSales();
   }
 
   Future<void> _loadArticles() async {
-   
-    setState(() {
-      _articles = articleBox.values.toList();
+   final user = widget.user;
+    for (var article in articleBox.values.toList()) {
+    if (article.orgid == user.orgId) {
+     
+       setState(() {
+      _articles.add(article);
      
     });
+    }}
+   
   }
   Future<List<Sale>> fetchSales() async {
     final box = Hive.box<Sale>('sales');
@@ -43,6 +81,18 @@ class _SalePageState extends State<SalePage> {
         }
     }
       return sales;
+  }
+
+  Future<List<User>> fetchUsers() async {
+    final box = Hive.box<User>('users');
+    List<User> users=[];
+    for(int i=0; i<box.values.toList().length; i++){
+       User user = box.values.toList()[i];
+     if (user.orgId==widget.user.orgId){
+          users.add(user);
+        }
+    }
+      return users;
   }
   Future<List<Sale>> confirmSale() async {
     final box = Hive.box<Sale>('sales');
@@ -81,7 +131,7 @@ class _SalePageState extends State<SalePage> {
       _sales=[];
       for(int i=0; i<saleBox.values.toList().length; i++){
         Sale sale = saleBox.values.toList()[i];
-        if (!sale.isSale){
+        if (!sale.isSale && sale.orgid== widget.user.orgId){
           _sales.add(sale);
         }
         
@@ -113,6 +163,136 @@ class _SalePageState extends State<SalePage> {
       }
     });
   }
+  void openmodal(){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Add User'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _usernameController,
+                  decoration: InputDecoration(
+                    hintText: 'Username',
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.8),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10.0),
+                TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    hintText: 'Email',
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.8),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10.0),
+                TextFormField(
+                  controller: _passwor1dController,
+                  decoration: InputDecoration(
+                    hintText: 'Password',
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.8),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  obscureText: true,
+                  onChanged: (value) {
+                    
+                  },
+                ),
+                SizedBox(height: 10.0),
+                
+               
+                SizedBox(height: 20.0),
+               
+                  
+                 
+                
+               
+              ],
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+           ElevatedButton(
+                    onPressed: register,
+                    child: Text('add User'),
+                  ),
+          ],
+        );
+      },
+    );
+  }
+
+  void openUsermodal(){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Users'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                FutureBuilder<List<User>>(
+                  future: fetchUsers(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final users = snapshot.data!;
+                      return SingleChildScrollView(
+                        child: ListView.builder(
+                          itemCount: users.length,
+                          itemBuilder: (context, index) {
+                            final user = users[index];
+                            return ListTile(
+                              title: Text(user.username),
+                              subtitle: Text(user.email),
+                            );
+                          },
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return CircularProgressIndicator();
+                    }
+                  },
+                )
+
+              ],
+            ),
+          ),
+          // actions: [
+          //   ElevatedButton(
+          //     onPressed: () {
+          //       Navigator.of(context).pop();
+          //     },
+          //     child: Text('Cancel'),
+          //   ),
+          //  ElevatedButton(
+          //           onPressed: register,
+          //           child: Text('add User'),
+          //         ),
+          // ],
+        );
+      },
+    );
+  }
 
   void _saveSale(Article article, int quantity) {
     List selectedStockList=[];
@@ -135,7 +315,8 @@ class _SalePageState extends State<SalePage> {
       
     } else if (quantity > 0){
       Stock stock = nonEmptyStocks[0];
-    final Sale sale = Sale(stockKey: stock.key, price: article.price, quantity: quantity, createdAt: DateTime.now(), articleKey: article.key, isSale: false);
+    final Sale sale = Sale(stockKey: stock.key, price: article.price, quantity: quantity, createdAt: DateTime.now(), articleKey: article.key, isSale: false,orgid:widget.user.hashCode
+    );
     
     saleBox.add(sale);
     
@@ -166,7 +347,7 @@ class _SalePageState extends State<SalePage> {
         Navigator.of(context).pop();
          Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) =>  const  ReportPage() ,
+            builder: (context) =>   ReportPage(user: widget.user) ,
           ),
         );
         break;
@@ -177,11 +358,14 @@ class _SalePageState extends State<SalePage> {
       Navigator.of(context).pop();
          Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) =>  ManagerPage(),
+            builder: (context) =>  ManagerPage(user: widget.user),
             
           ),
         );
         break;
+      case 'Add User':
+      openmodal();
+      break;
       default:
         break;
     }
@@ -192,26 +376,55 @@ class _SalePageState extends State<SalePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Sale Page'),
+        
+        actions: [
+          
+          IconButton(
+          icon: const Icon(
+            
+            Icons.person,
+            color: Colors.grey,
+          ),
+         
+          onPressed: (){
+            setState(() {
+              openUsermodal();
+              });
+            }),
+          
+        ],
+        
       ),
       drawer: Drawer(
         child: ListView(
           children: [
-            ListTile(
-              title: Text('Report'),
+            if( widget.user.isAdmin)
+              ListTile(
+              title: const Text('Report'),
               onTap: () {
                 _navigateToPage('Report');
               },
             ),
+            if( widget.user.isAdmin)
             ListTile(
-              title: Text('Sale'),
-              onTap: () {
-                _navigateToPage('Sale');
-              },
-            ),
-            ListTile(
-              title: Text('Manage'),
+              title: const Text('Manage'),
               onTap: () {
                 _navigateToPage('Manage');
+              },
+            ),
+           if( widget.user.isAdmin)
+             ListTile(
+              title: const Text('Add User'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _navigateToPage('Add User');
+               
+              },
+            ),
+             ListTile(
+              title: const Text('Logout'),
+              onTap: () {
+               
               },
             ),
           ],

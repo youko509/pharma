@@ -4,10 +4,11 @@ import 'package:pharma1/models/sale.dart';
 
 import 'models/article.dart';
 import 'models/stock.dart';
+import 'models/user.dart';
 
 class ReportPage extends StatefulWidget {
-  const ReportPage({Key? key}) : super(key: key);
-
+  ReportPage({Key? key,required this.user}) : super(key: key);
+  final User user;
   @override
   State<ReportPage> createState() => _ReportPageState();
 }

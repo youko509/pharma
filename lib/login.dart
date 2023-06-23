@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:pharma1/register.dart';
+import 'package:pharma1/salepage.dart';
 import 'models/user.dart';
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -22,27 +24,42 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState   extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   void _login() {
     final username = _usernameController.text;
-    final email = _emailController.text;
     final password = _passwordController.text;
-    if (username.isEmpty || email.isEmpty || password.isEmpty) {
+    if (username.isEmpty || password.isEmpty) {
       // Show an error message or handle empty fields
       return;
     }
     // Save user to Hive
     final userBox = Hive.box<User>('users');
-    final user = User(
-      username: username,
-      email: email,
-      password: password,
-      isAdmin: false,
-      isActive: true,
+   
+    
+     for (var user in userBox.values.toList()) {
+    if (user.username == username && user.password == password) {
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Login success'),
+      ),
+      
     );
-    userBox.add(user);
+     Navigator.of(context).pop();
+    Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) =>  SalePage(user:user,),
+      
+    ),);
+    }else{
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Username or password is incorrect'),
+      ),
+    );
+    }
+  }
+    
   }
 
   @override
@@ -75,17 +92,7 @@ class _LoginPageState   extends State<LoginPage> {
                   ),
                 ),
                 SizedBox(height: 10.0),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    hintText: 'Email',
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.8),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                ),
+                
                 SizedBox(height: 10.0),
                 TextFormField(
                   controller: _passwordController,
@@ -100,10 +107,27 @@ class _LoginPageState   extends State<LoginPage> {
                   obscureText: true,
                 ),
                 SizedBox(height: 20.0),
-                ElevatedButton(
+                 Row(
+                  mainAxisAlignment:MainAxisAlignment.center,
+                  children: [
+                  ElevatedButton(
                   onPressed: _login,
-                  child: Text('Log In'),
+                  child: Text('Login'),
                 ),
+                  SizedBox(width: 20.0),
+                  ElevatedButton(
+                    onPressed: (){
+                      Navigator.of(context).pop();
+                      Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const RegisterPage(),
+                        
+                      ),);
+                    },
+                    child: Text('Register'),
+                  ),
+                ],),
+               
               ],
             ),
           ),

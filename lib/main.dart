@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 
+
 import 'package:pharma1/models/article.dart';
 import 'package:pharma1/models/sale.dart';
 import 'package:pharma1/models/stock.dart';
+import 'package:pharma1/register.dart';
 import 'models/user.dart';
-import 'salepage.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final appDocumentDirectory = await path_provider.getApplicationDocumentsDirectory();
@@ -22,12 +24,12 @@ void main() async {
   
   runApp(
     MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Pharma',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home:   SalePage(),
+      home:   const  RegisterPage(),
       debugShowCheckedModeBanner: false,
     )
   );

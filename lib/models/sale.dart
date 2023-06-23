@@ -22,7 +22,10 @@ class Sale extends HiveObject {
   @HiveField(5)
   bool isSale;
 
-  Sale({required this.stockKey, required this.price, required this.quantity, required this.createdAt, required this.articleKey,required this.isSale});
+  @HiveField(6) 
+  int orgid;
+
+  Sale({required this.stockKey, required this.price, required this.quantity, required this.createdAt, required this.articleKey,required this.isSale, required this.orgid});
 }
 
 class SaleAdapter extends TypeAdapter<Sale> {
@@ -47,12 +50,13 @@ class SaleAdapter extends TypeAdapter<Sale> {
       createdAt: fields[3] as DateTime,
       articleKey:fields[4] as int,
       isSale: fields[5] as bool,
+      orgid: fields[6] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Sale obj) {
-    writer.writeByte(6); // Number of fields in the Sale class
+    writer.writeByte(7); // Number of fields in the Sale class
 
     writer.writeByte(0); // Field index of stock
     writer.write(obj.stockKey);
@@ -69,7 +73,10 @@ class SaleAdapter extends TypeAdapter<Sale> {
     writer.writeByte(4); // Field index of articleKey
     writer.write(obj.articleKey);
 
-     writer.writeByte(5); // Field index of isSale
+    writer.writeByte(5); // Field index of isSale
     writer.write(obj.isSale);
+
+    writer.writeByte(6); // Field index of isSale
+    writer.write(obj.orgid);
   }
 }

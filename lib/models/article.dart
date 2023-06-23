@@ -35,7 +35,10 @@ class Article extends HiveObject {
   @HiveField(5)
   double bigSalePrice;
 
-  Article({ required this.name, required this.type,required this.price, required this.stock, required this.bigSalePrice, required this.createdAt});
+  @HiveField(6) 
+  int orgid;
+
+  Article({ required this.name, required this.type,required this.price, required this.stock, required this.bigSalePrice, required this.createdAt, required this.orgid});
 
   Map<String, dynamic> toMap() {
   return { 
@@ -45,16 +48,7 @@ class Article extends HiveObject {
   'stock':stock,
   };
   }
-factory Article.fromJson(Map<String, dynamic> json) {
-    return Article(
-      name:json['name'],
-      type: json['userId'],
-      price: json['price'],
-      stock:HiveList(json['stock']),
-      bigSalePrice: json['bigSalePrice'],
-      createdAt: json['']
-    );
-}
+
 }
 
 class ArticleAdapter extends TypeAdapter<Article> {
@@ -80,12 +74,13 @@ class ArticleAdapter extends TypeAdapter<Article> {
       stock: fields[3] as HiveList,
       bigSalePrice: fields[4] as double,
       createdAt: fields[5] as DateTime,
+      orgid: fields[6] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Article obj) {
-    writer.writeByte(6); // Number of fields in the Article class
+    writer.writeByte(7); // Number of fields in the Article class
 
     writer.writeByte(0); // Field index of name
     writer.write(obj.name);
@@ -104,8 +99,9 @@ class ArticleAdapter extends TypeAdapter<Article> {
 
     writer.writeByte(5); // Field index of stock
     writer.write(obj.createdAt);
-
-  
+    
+    writer.writeByte(6); // Field index of stock
+    writer.write(obj.orgid);
 
   }
 }
