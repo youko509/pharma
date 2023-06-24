@@ -32,6 +32,25 @@ class _ManagerPageState extends State<ManagerPage> {
     super.initState();
     _loadData();
   }
+  Future<void> _deleteArticle(Article article) async {
+    
+    
+    for (var stock in stockBox.values.toList()) {
+      if(stock.articleKey == article.key){
+        setState(() {
+           stockBox.delete(stock.key);
+           _loadstocks();
+          
+        });
+       
+      }
+    }
+    setState(() {
+       l.delete(article.key);
+           _loadarticle();
+    });
+    
+  }
 
   Future<List<Article>> _loadData() async {
     final articleBox = Hive.box<Article>('articles');
@@ -499,99 +518,142 @@ class _ManagerPageState extends State<ManagerPage> {
                             return ListTile(
                               title: Text('Name:${article.name}',),
                               subtitle: Text('Type:${article.type}, Sale Price:\$${article.price}, Big Sale Price:\$${article.bigSalePrice}'),
-                              trailing: ElevatedButton(
-                                onPressed: () {
-                                  final TextEditingController _editnameController = TextEditingController();
-                                  final TextEditingController _edittypeController = TextEditingController();
-                                  final TextEditingController _editpriceController = TextEditingController();
-                                  final TextEditingController _editbigSaleController = TextEditingController();
-                                  _editnameController.text = article.name;
-                                  _edittypeController.text = article.type;
-                                  _editpriceController.text = article.price.toString();
-                                  _editbigSaleController.text = article.bigSalePrice.toString();
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text('Edit Article'),
-                                        content: SingleChildScrollView(
-                                          child: Column(
-                                            children: [
-                                              TextField(
-                                                controller: _editnameController,
-                                                decoration: InputDecoration(
-                                                  labelText: 'Name',
-                                                ),
-                                              ),
-                                              SizedBox(height: 10.0),
-                                              DropdownButtonFormField<String>(
-                                                value: _edittypeController.text,
-                                                items: [
-                                                  DropdownMenuItem(
-                                                    value: 'Pharmaceutical',
-                                                    child: Text('Pharmaceutical'),
-                                                  ),
-                                                  DropdownMenuItem(
-                                                    value: 'Medical Supply',
-                                                    child: Text('Medical Supply'),
-                                                  ),
-                                                ],
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    article.type = value!;
-                                                    article.save();
-                                                  });
-                                                },
-                                                decoration: InputDecoration(
-                                                  labelText: 'Type',
-                                                ),
-                                              ),
-                                              SizedBox(height: 10.0),
-                                              TextField(
-                                                controller: _editpriceController,
-                                                keyboardType: TextInputType.number,
-                                                decoration: InputDecoration(
-                                                  labelText: 'Sale Price',
-                                                ),
-                                              ),
-                                              SizedBox(height: 10.0),
-                                              TextField(
-                                                controller: _editbigSaleController,
-                                                keyboardType: TextInputType.number,
-                                                decoration: InputDecoration(
-                                                  labelText: 'Big Sale Price',
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        actions: [
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text('Cancel'),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              _saveEditedArticle(
-                                                article,
-                                                _editnameController.text,
-                                                _edittypeController.text,
-                                                double.parse(_editpriceController.text),
-                                                double.parse(_editbigSaleController.text),
-                                              );
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text('Save'),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                                child: Text('Edit'),
-                              ),
+                              trailing: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    ElevatedButton(
+      onPressed: () {
+        final TextEditingController _editnameController = TextEditingController();
+        final TextEditingController _edittypeController = TextEditingController();
+        final TextEditingController _editpriceController = TextEditingController();
+        final TextEditingController _editbigSaleController = TextEditingController();
+        _editnameController.text = article.name;
+        _edittypeController.text = article.type;
+        _editpriceController.text = article.price.toString();
+        _editbigSaleController.text = article.bigSalePrice.toString();
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Edit Article'),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _editnameController,
+                      decoration: InputDecoration(
+                        labelText: 'Name',
+                      ),
+                    ),
+                    SizedBox(height: 10.0),
+                    DropdownButtonFormField<String>(
+                      value: _edittypeController.text,
+                      items: [
+                        DropdownMenuItem(
+                          value: 'Pharmaceutical',
+                          child: Text('Pharmaceutical'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Medical Supply',
+                          child: Text('Medical Supply'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          article.type = value!;
+                          article.save();
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Type',
+                      ),
+                    ),
+                    SizedBox(height: 10.0),
+                    TextField(
+                      controller: _editpriceController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Sale Price',
+                      ),
+                    ),
+                    SizedBox(height: 10.0),
+                    TextField(
+                      controller: _editbigSaleController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Big Sale Price',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _saveEditedArticle(
+                      article,
+                      _editnameController.text,
+                      _edittypeController.text,
+                      double.parse(_editpriceController.text),
+                      double.parse(_editbigSaleController.text),
+                    );
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: Text('Edit'),
+    ),
+    SizedBox(width: 10.0), // Add spacing between the buttons
+    ElevatedButton(
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Delete Article'),
+              content: Text('Are you sure you want to delete this article?'),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    _deleteArticle(article); // Call a function to delete the article
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Delete'),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.red, // Customize button color
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Cancel'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: Text('Delete'),
+      style: ElevatedButton.styleFrom(
+        primary: Colors.red, // Customize button color
+      ),
+    ),
+  ],
+),
+
+                              
                             );
                           },
                         );
@@ -633,6 +695,7 @@ class _ManagerPageState extends State<ManagerPage> {
                         return Text('No stocks found.');
                       } else {
                         List<Stock> stocks = snapshot.data!;
+                        
                         return ListView.builder(
                           shrinkWrap: true,
                           itemCount: stocks.length,
