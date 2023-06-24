@@ -81,7 +81,7 @@ class _SalePageState extends State<SalePage> {
     _sales=[];
     for(int i=0; i<box.values.toList().length; i++){
        Sale sale = saleBox.values.toList()[i];
-     if (!sale.isSale){
+     if (!sale.isSale && sale.orgid==widget.user.orgId){
           sales.add(sale);
           _sales.add(sale);
         }
@@ -340,7 +340,7 @@ class _SalePageState extends State<SalePage> {
       
     } else if (quantity > 0){
       Stock stock = nonEmptyStocks[0];
-    final Sale sale = Sale(stockKey: stock.key, price: article.price, quantity: quantity, createdAt: DateTime.now(), articleKey: article.key, isSale: false,orgid:widget.user.hashCode
+    final Sale sale = Sale(stockKey: stock.key, price: article.price, quantity: quantity, createdAt: DateTime.now(), articleKey: article.key, isSale: false,orgid:widget.user.orgId
     );
     
     saleBox.add(sale);

@@ -33,17 +33,56 @@ class _ManagerPageState extends State<ManagerPage> {
     _loadData();
   }
 
-  Future<void> _loadData() async {
+  Future<List<Article>> _loadData() async {
     final articleBox = Hive.box<Article>('articles');
     final stockBox = Hive.box<Stock>('stocks');
-
+    _articles = [];
     setState(() {
-      _articles = articleBox.values.toList();
-      _articles.forEach((element) {
-        print(element.stock.length);
+      
+      for (var article in articleBox.values.toList()) {
+      if (article.orgid == widget.user.orgId) {
+        setState(() {
+        _articles.add(article);
+      
       });
-      _stocks = stockBox.values.toList();
+      }}
+       for (var stock in stockBox.values.toList()) {
+      if (stock.orgid == widget.user.orgId) {
+        setState(() {
+        _stocks.add(stock);
+      
+      });
+      }}
+      
     });
+    return _articles;
+  }
+  Future<List<Article>> _loadarticle() async {
+    final articleBox = Hive.box<Article>('articles');
+  _articles = [];
+      for (var article in articleBox.values.toList()) {
+      if (article.orgid == widget.user.orgId) {
+        setState(() {
+        _articles.add(article);
+      
+      });
+      }}
+     
+    return _articles;
+  }
+
+  Future<List<Stock>> _loadstocks() async {
+    final stockBox = Hive.box<Stock>('stocks');
+    _stocks=[];
+       for (var stock in stockBox.values.toList()) {
+      if (stock.orgid == widget.user.orgId) {
+        setState(() {
+        _stocks.add(stock);
+      
+      });
+      }}
+    
+    return _stocks;
   }
 
   @override
@@ -187,7 +226,7 @@ class _ManagerPageState extends State<ManagerPage> {
                 const SizedBox(height: 10.0),
                 DropdownButtonFormField<String>(
                   value: _articleName,
-                  items: l.values.map((article) {
+                  items: _articles.map((article) {
                     return DropdownMenuItem<String>(
                       value: '${article.key!}',
                       child: Text(article.name),
@@ -441,17 +480,22 @@ class _ManagerPageState extends State<ManagerPage> {
                     ],
                   ),
                   SizedBox(height: 10.0),
-                  ValueListenableBuilder(
-                    valueListenable: Hive.box<Article>('articles').listenable(),
-                    builder: (BuildContext context, Box<Article> box, Widget? child) {
-                      if (box.isEmpty) {
+                  FutureBuilder<List<Article>>(
+                    future: _loadarticle(),
+                    builder: (BuildContext context, AsyncSnapshot<List<Article>> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                         return Text('No articles found.');
                       } else {
+                        List<Article> articles = snapshot.data!;
                         return ListView.builder(
                           shrinkWrap: true,
-                          itemCount: _articles.length,
+                          itemCount: articles.length,
                           itemBuilder: (BuildContext context, int index) {
-                            final Article article = _articles[index];
+                            final Article article = articles[index];
                             return ListTile(
                               title: Text(article.name),
                               subtitle: Text(article.type),
@@ -461,10 +505,10 @@ class _ManagerPageState extends State<ManagerPage> {
                                   final TextEditingController _edittypeController = TextEditingController();
                                   final TextEditingController _editpriceController = TextEditingController();
                                   final TextEditingController _editbigSaleController = TextEditingController();
-                                  _editnameController.text=article.name;
-                                  _edittypeController.text=article.type;
-                                  _editpriceController.text=article.price.toString();
-                                  _editbigSaleController.text=article.bigSalePrice.toString();
+                                  _editnameController.text = article.name;
+                                  _edittypeController.text = article.type;
+                                  _editpriceController.text = article.price.toString();
+                                  _editbigSaleController.text = article.bigSalePrice.toString();
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -494,8 +538,7 @@ class _ManagerPageState extends State<ManagerPage> {
                                                 ],
                                                 onChanged: (value) {
                                                   setState(() {
-                                                   
-                                                    article.type = '${value}';
+                                                    article.type = value!;
                                                     article.save();
                                                   });
                                                 },
@@ -505,7 +548,7 @@ class _ManagerPageState extends State<ManagerPage> {
                                               ),
                                               SizedBox(height: 10.0),
                                               TextField(
-                                                controller:_editpriceController,
+                                                controller: _editpriceController,
                                                 keyboardType: TextInputType.number,
                                                 decoration: InputDecoration(
                                                   labelText: 'Sale Price',
@@ -531,7 +574,13 @@ class _ManagerPageState extends State<ManagerPage> {
                                           ),
                                           ElevatedButton(
                                             onPressed: () {
-                                              _saveEditedArticle(article,_editnameController.text,_edittypeController.text,double.parse(_editpriceController.text),double.parse(_editbigSaleController.text));
+                                              _saveEditedArticle(
+                                                article,
+                                                _editnameController.text,
+                                                _edittypeController.text,
+                                                double.parse(_editpriceController.text),
+                                                double.parse(_editbigSaleController.text),
+                                              );
                                               Navigator.of(context).pop();
                                             },
                                             child: Text('Save'),
@@ -548,7 +597,8 @@ class _ManagerPageState extends State<ManagerPage> {
                         );
                       }
                     },
-                  ),
+                  )
+
                 ],
               ),
             ),
@@ -572,17 +622,22 @@ class _ManagerPageState extends State<ManagerPage> {
                     ],
                   ),
                   SizedBox(height: 10.0),
-                  ValueListenableBuilder(
-                    valueListenable: stockBox.listenable(),
-                    builder: (BuildContext context, Box<Stock> box, Widget? child) {
-                      if (box.isEmpty) {
+                  FutureBuilder<List<Stock>>(
+                    future: _loadstocks(),
+                    builder: (BuildContext context, AsyncSnapshot<List<Stock>> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                         return Text('No stocks found.');
                       } else {
+                        List<Stock> stocks = snapshot.data!;
                         return ListView.builder(
                           shrinkWrap: true,
-                          itemCount: _stocks.length,
+                          itemCount: stocks.length,
                           itemBuilder: (BuildContext context, int index) {
-                            final Stock stock = _stocks[index];
+                            final Stock stock = stocks[index];
                             final Article? art = l.get(stock.articleKey);
                             return ListTile(
                               title: Text('Stock Name: ${art!.name}'),
@@ -598,7 +653,8 @@ class _ManagerPageState extends State<ManagerPage> {
                         );
                       }
                     },
-                  ),
+                  )
+
                 ],
               ),
             ),

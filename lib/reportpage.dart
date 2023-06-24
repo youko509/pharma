@@ -25,13 +25,16 @@ class _ReportPageState extends State<ReportPage> {
 
   Future<List<Sale>> fetchSales() async {
     final box = Hive.box<Sale>('sales');
-    List<Sale> sales = box.values.toList();
-
+    List<Sale> sales = [];
+    for(int i=0; i<box.values.toList().length; i++){
+       Sale sale = box.values.toList()[i];
+     if (sale.isSale && sale.orgid==widget.user.orgId){
+          sales.add(sale);
+          
+        }
+    }
     if (fromDate != null && toDate != null) {
       sales = sales.where((sale) {
-        print(sale.createdAt);
-        print(fromDate);
-        print(toDate);
         return sale.createdAt.isAfter(fromDate!) &&
             sale.createdAt.isBefore(toDate!.add(const Duration(hours: 23, minutes:59, milliseconds: 59,microseconds: 59 ))) &&
             sale.isSale;
