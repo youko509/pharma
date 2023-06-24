@@ -497,8 +497,8 @@ class _ManagerPageState extends State<ManagerPage> {
                           itemBuilder: (BuildContext context, int index) {
                             final Article article = articles[index];
                             return ListTile(
-                              title: Text(article.name),
-                              subtitle: Text(article.type),
+                              title: Text('Name:${article.name}',),
+                              subtitle: Text('Type:${article.type}, Sale Price:\$${article.price}, Big Sale Price:\$${article.bigSalePrice}'),
                               trailing: ElevatedButton(
                                 onPressed: () {
                                   final TextEditingController _editnameController = TextEditingController();
@@ -641,7 +641,7 @@ class _ManagerPageState extends State<ManagerPage> {
                             final Article? art = l.get(stock.articleKey);
                             return ListTile(
                               title: Text('Stock Name: ${art!.name}'),
-                              subtitle: Text('\$${stock.quantity}'),
+                              subtitle: Text('Stock Price:\$${stock.price}, quantity:${stock.quantity}'),
                               trailing: ElevatedButton(
                                 onPressed: () {
                                   _editStock(stock);
