@@ -29,8 +29,11 @@ class _ReportPageState extends State<ReportPage> {
 
     if (fromDate != null && toDate != null) {
       sales = sales.where((sale) {
+        print(sale.createdAt);
+        print(fromDate);
+        print(toDate);
         return sale.createdAt.isAfter(fromDate!) &&
-            sale.createdAt.isBefore(toDate!) &&
+            sale.createdAt.isBefore(toDate!.add(const Duration(hours: 23, minutes:59, milliseconds: 59,microseconds: 59 ))) &&
             sale.isSale;
       }).toList();
 
@@ -88,7 +91,7 @@ class _ReportPageState extends State<ReportPage> {
                 context: context,
                 initialDate: toDate ?? DateTime.now(),
                 firstDate: DateTime(2000),
-                lastDate: DateTime.now().add(const Duration(hours: 22)),
+                lastDate: DateTime.now(),
               );
 
               setState(() {
@@ -96,14 +99,15 @@ class _ReportPageState extends State<ReportPage> {
               });
             },
           ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                fetchSales();
-              });
-            },
-            child: Text('Generate Report'),
-          ),
+          // ElevatedButton(
+          //   onPressed: () {
+          //     setState(() {
+          //       fetchSales();
+          //     });
+          //   },
+          //   child: Text('Generate Report'),
+          // ),
+          SizedBox(height: 50,),
           FutureBuilder<List<Sale>>(
             future: fetchSales(),
             builder: (context, snapshot) {

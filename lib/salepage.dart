@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pharma1/login.dart';
 import 'package:pharma1/manage.dart';
 import 'package:pharma1/models/stock.dart';
 import 'package:pharma1/models/user.dart';
@@ -22,6 +23,7 @@ class _SalePageState extends State<SalePage> {
   final saleBox = Hive.box<Sale>('sales');
   final articleBox = Hive.box<Article>('articles');
   final stockBox = Hive.box<Stock>('stocks');
+  final userBox = Hive.box<User>('users');
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwor1dController = TextEditingController();
@@ -35,7 +37,7 @@ class _SalePageState extends State<SalePage> {
       return;
     }
     // Save user to Hive
-    final userBox = Hive.box<User>('users');
+    
     final user = User(
       username: username,
       email: email,
@@ -46,7 +48,9 @@ class _SalePageState extends State<SalePage> {
       orgId: widget.user.orgId,
     );
     userBox.add(user);
-    print(user.orgId);
+    _usernameController.clear();
+    _emailController.clear();
+    _passwor1dController.clear();
    Navigator.of(context).pop();
   }
   List<Article> _articles = [];
@@ -56,14 +60,13 @@ class _SalePageState extends State<SalePage> {
   void initState() {
     
     super.initState();
-    _loadSales();
+    
   }
 
   Future<void> _loadArticles() async {
    final user = widget.user;
     for (var article in articleBox.values.toList()) {
     if (article.orgid == user.orgId) {
-     
        setState(() {
       _articles.add(article);
      
@@ -73,14 +76,30 @@ class _SalePageState extends State<SalePage> {
   }
   Future<List<Sale>> fetchSales() async {
     final box = Hive.box<Sale>('sales');
+    
     List<Sale> sales=[];
+    _sales=[];
     for(int i=0; i<box.values.toList().length; i++){
        Sale sale = saleBox.values.toList()[i];
      if (!sale.isSale){
           sales.add(sale);
+          _sales.add(sale);
         }
     }
+   
+    setState(() {
+      total=0;
+      
+       _sales.forEach((element) { total+= element.quantity * element.price;});
+    });
       return sales;
+  }
+  Future<void> deleteUser(User user) async{
+    setState(() {
+      userBox.delete(user.key);
+      Navigator.of(context).pop();
+    });
+    
   }
 
   Future<List<User>> fetchUsers() async {
@@ -88,7 +107,8 @@ class _SalePageState extends State<SalePage> {
     List<User> users=[];
     for(int i=0; i<box.values.toList().length; i++){
        User user = box.values.toList()[i];
-     if (user.orgId==widget.user.orgId){
+     if (user.orgId==widget.user.orgId && !user.isAdmin){
+     
           users.add(user);
         }
     }
@@ -121,7 +141,7 @@ class _SalePageState extends State<SalePage> {
   }
   Future<void> removeItemFromCart(int index ,Sale sale) async {
    saleBox.delete(index);
-   _loadSales();
+   fetchSales();
   }
   
    Future<void> _loadSales() async {
@@ -137,7 +157,7 @@ class _SalePageState extends State<SalePage> {
         
       }
       _sales.forEach((element) { total+= element.quantity * element.price;});
-      
+      print(total);
     });
   }
   
@@ -240,59 +260,64 @@ class _SalePageState extends State<SalePage> {
     );
   }
 
-  void openUsermodal(){
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Users'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                FutureBuilder<List<User>>(
-                  future: fetchUsers(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      final users = snapshot.data!;
-                      return SingleChildScrollView(
-                        child: ListView.builder(
-                          itemCount: users.length,
-                          itemBuilder: (context, index) {
-                            final user = users[index];
-                            return ListTile(
-                              title: Text(user.username),
-                              subtitle: Text(user.email),
-                            );
-                          },
-                        ),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else {
-                      return CircularProgressIndicator();
-                    }
-                  },
-                )
-
-              ],
-            ),
+  void openUsermodal() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Users'),
+        content: SingleChildScrollView(
+          child: FutureBuilder<List<User>>(
+            future: fetchUsers(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final users = snapshot.data!;
+                return Column(
+                  children: users.map((user) => ListTile(
+                    title: Text(user.username),
+                    subtitle: Text(user.email),
+                    trailing: IconButton(
+                          icon: const Icon(
+                            
+                            Icons.delete,
+                            color: Colors.red,
+                          ),
+                        
+                          onPressed: (){
+                            setState(() {
+                              deleteUser(user);
+                              });
+                            }),
+                  )).toList(),
+                );
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                return CircularProgressIndicator();
+              }
+            },
           ),
-          // actions: [
-          //   ElevatedButton(
-          //     onPressed: () {
-          //       Navigator.of(context).pop();
-          //     },
-          //     child: Text('Cancel'),
-          //   ),
-          //  ElevatedButton(
-          //           onPressed: register,
-          //           child: Text('add User'),
-          //         ),
-          // ],
-        );
-      },
-    );
-  }
+        ),
+        actions: [
+                // ElevatedButton(
+                //   onPressed: () {
+                //     Navigator.of(context).pop();
+                //   },
+                //   child: Text('Cancel'),
+                // ),
+                ElevatedButton(
+                  onPressed: () {
+                    
+                    Navigator.of(context).pop();
+                _navigateToPage('Add User');
+                  },
+                  child: Text('Add User'),
+                ),
+              ],
+      );
+    },
+  );
+}
 
   void _saveSale(Article article, int quantity) {
     List selectedStockList=[];
@@ -381,7 +406,6 @@ class _SalePageState extends State<SalePage> {
           
           IconButton(
           icon: const Icon(
-            
             Icons.person,
             color: Colors.grey,
           ),
@@ -391,7 +415,6 @@ class _SalePageState extends State<SalePage> {
               openUsermodal();
               });
             }),
-          
         ],
         
       ),
@@ -424,7 +447,13 @@ class _SalePageState extends State<SalePage> {
              ListTile(
               title: const Text('Logout'),
               onTap: () {
-               
+               Navigator.of(context).pop();
+               Navigator.of(context).push(
+                 MaterialPageRoute(
+            builder: (context) =>  const LoginPage(),
+            
+          ),
+               );
               },
             ),
           ],
@@ -503,16 +532,16 @@ class _SalePageState extends State<SalePage> {
             future: fetchSales(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                final _sales = snapshot.data!;
-                if (_sales.isEmpty) {
+                final newSales = snapshot.data!;
+                if (newSales.isEmpty) {
                   // Display a message when no sales exist
                   return Text('');
                 }
                 return Expanded(
                       child: ListView.builder(
-                        itemCount: _sales.length,
+                        itemCount: newSales.length,
                         itemBuilder: (context, index) {
-                          final sale = _sales[index];
+                          final sale = newSales[index];
                           final article = articleBox.getAt(sale.articleKey);
                           return ListTile(
                             title: Text('${article!.name} '),

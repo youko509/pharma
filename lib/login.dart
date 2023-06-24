@@ -45,12 +45,13 @@ class _LoginPageState   extends State<LoginPage> {
       ),
       
     );
-     Navigator.of(context).pop();
+    Navigator.of(context).pop();
     Navigator.of(context).push(
     MaterialPageRoute(
       builder: (context) =>  SalePage(user:user,),
       
     ),);
+    break;
     }else{
       ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

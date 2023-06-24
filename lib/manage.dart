@@ -71,7 +71,7 @@ class _ManagerPageState extends State<ManagerPage> {
         buyDate: DateTime.now(),
         createdAt: DateTime.now(),
         articleKey: _selectedArticle!.key,
-        orgid:0
+        orgid:widget.user.orgId,
       );
 
       stockBox.add(stock);
@@ -84,7 +84,10 @@ class _ManagerPageState extends State<ManagerPage> {
       setState(() {
         _stocks.add(stock);
       });
-
+      _stockQuantityController.clear();
+      _quantityPerBoxController.clear();
+      _stockPriceController.clear();
+      _stockSupplierController.clear();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Stock added successfully.'),
@@ -270,7 +273,7 @@ class _ManagerPageState extends State<ManagerPage> {
         bigSalePrice: bigSale,
         stock: HiveList(Hive.box<Stock>('stocks')),
         createdAt: DateTime.now(),
-       orgid:0
+       orgid:widget.user.orgId,
       );
 
       final articleBox = Hive.box<Article>('articles');
@@ -582,8 +585,8 @@ class _ManagerPageState extends State<ManagerPage> {
                             final Stock stock = _stocks[index];
                             final Article? art = l.get(stock.articleKey);
                             return ListTile(
-                              title: Text(art!.name),
-                              subtitle: Text(stock.supplier),
+                              title: Text('Stock Name: ${art!.name}'),
+                              subtitle: Text('\$${stock.quantity}'),
                               trailing: ElevatedButton(
                                 onPressed: () {
                                   _editStock(stock);
