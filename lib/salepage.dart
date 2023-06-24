@@ -403,7 +403,7 @@ class _SalePageState extends State<SalePage> {
         title: Text('Sale Page'),
         
         actions: [
-          
+          if(widget.user.isAdmin)
           IconButton(
           icon: const Icon(
             Icons.person,

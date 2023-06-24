@@ -35,32 +35,33 @@ class _LoginPageState   extends State<LoginPage> {
     }
     // Save user to Hive
     final userBox = Hive.box<User>('users');
-   
+    bool success = false;
     
      for (var user in userBox.values.toList()) {
+      
     if (user.username == username && user.password == password) {
       ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Login success'),
-      ),
-      
-    );
-    Navigator.of(context).pop();
-    Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (context) =>  SalePage(user:user,),
-      
-    ),);
-    break;
-    }else{
-      ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Username or password is incorrect'),
-      ),
-    );
-    }
+        const SnackBar(
+          content: Text('Login success'),
+        ),
+      );
+      Navigator.of(context).pop();
+      Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) =>  SalePage(user:user,),
+        
+      ),);
+      success=true;
+      break;
   }
-    
+     }
+     if(!success){
+      ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content:  Text('Username or password is incorrect'),
+            ),
+        );
+     }
   }
 
   @override
