@@ -3,10 +3,10 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 
 
-import 'package:pharma1/models/article.dart';
-import 'package:pharma1/models/sale.dart';
-import 'package:pharma1/models/stock.dart';
-import 'package:pharma1/register.dart';
+import 'package:pharma/models/article.dart';
+import 'package:pharma/models/sale.dart';
+import 'package:pharma/models/stock.dart';
+import 'package:pharma/register.dart';
 import 'models/user.dart';
 
 void main() async {

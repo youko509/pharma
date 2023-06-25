@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:pharma1/login.dart';
-import 'package:pharma1/manage.dart';
-import 'package:pharma1/models/stock.dart';
-import 'package:pharma1/models/user.dart';
-import 'package:pharma1/reportpage.dart';
+import 'package:pharma/login.dart';
+import 'package:pharma/manage.dart';
+import 'package:pharma/models/stock.dart';
+import 'package:pharma/models/user.dart';
+import 'package:pharma/reportpage.dart';
 import 'models/article.dart';
 import 'models/sale.dart';
 class SalePage extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:pharma1/models/sale.dart';
+import 'package:pharma/models/sale.dart';
 
 import 'models/article.dart';
 import 'models/stock.dart';

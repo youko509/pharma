@@ -1,4 +1,4 @@
-# pharma1
+# pharma
 
 A new Flutter project.
 

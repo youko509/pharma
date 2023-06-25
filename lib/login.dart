@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:pharma1/register.dart';
-import 'package:pharma1/salepage.dart';
+import 'package:pharma/register.dart';
+import 'package:pharma/salepage.dart';
 import 'models/user.dart';
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
