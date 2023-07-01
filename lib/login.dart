@@ -68,12 +68,6 @@ class _LoginPageState   extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          // image: DecorationImage(
-          //   image: AssetImage('assets/background_image.jpg'),
-          //   fit: BoxFit.cover,
-          // ),
-        ),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(10.0),

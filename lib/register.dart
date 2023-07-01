@@ -48,8 +48,7 @@ class _RegisterPageState   extends State<RegisterPage> {
       orgId: DateTime.now().millisecondsSinceEpoch,
     );
     userBox.add(user);
-    print("Save");
-     Navigator.of(context).pop();
+    Navigator.of(context).pop();
     Navigator.of(context).push(
     MaterialPageRoute(
       builder: (context) =>  SalePage(user:user,),

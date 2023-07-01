@@ -157,7 +157,7 @@ class _SalePageState extends State<SalePage> {
         
       }
       _sales.forEach((element) { total+= element.quantity * element.price;});
-      print(total);
+      
     });
   }
   
@@ -328,9 +328,9 @@ class _SalePageState extends State<SalePage> {
     List nonEmptyStocks = selectedStockList.where((stock) {
           return !stock.isEmpty();
         }).toList();
-    
-    
-    if ( nonEmptyStocks.isEmpty){
+    Stock stock = nonEmptyStocks[0];
+    print(stock.quantity);
+    if ( nonEmptyStocks.isEmpty || quantity >stock.quantity){
       
       ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

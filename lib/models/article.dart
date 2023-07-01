@@ -40,14 +40,6 @@ class Article extends HiveObject {
 
   Article({ required this.name, required this.type,required this.price, required this.stock, required this.bigSalePrice, required this.createdAt, required this.orgid});
 
-  Map<String, dynamic> toMap() {
-  return { 
-  'name': name,
-  'type': type,
-  'price': price,
-  'stock':stock,
-  };
-  }
 
 }
 

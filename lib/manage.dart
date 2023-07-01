@@ -185,7 +185,7 @@ class _ManagerPageState extends State<ManagerPage> {
                   onChanged: (value) {
                     setState(() {
                       _selectedType = value;
-                      print(value);
+                     
                     });
                   },
                   decoration: InputDecoration(
@@ -696,7 +696,9 @@ class _ManagerPageState extends State<ManagerPage> {
                       } else {
                         List<Stock> stocks = snapshot.data!;
                         
-                        return ListView.builder(
+                        return SizedBox(
+                         height: 100,
+                          child: ListView.builder(
                           shrinkWrap: true,
                           itemCount: stocks.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -713,6 +715,7 @@ class _ManagerPageState extends State<ManagerPage> {
                               ),
                             );
                           },
+                        )
                         );
                       }
                     },

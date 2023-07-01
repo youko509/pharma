@@ -102,14 +102,6 @@ class _ReportPageState extends State<ReportPage> {
               });
             },
           ),
-          // ElevatedButton(
-          //   onPressed: () {
-          //     setState(() {
-          //       fetchSales();
-          //     });
-          //   },
-          //   child: Text('Generate Report'),
-          // ),
           SizedBox(height: 50,),
           FutureBuilder<List<Sale>>(
             future: fetchSales(),
